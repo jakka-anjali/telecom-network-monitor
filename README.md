@@ -258,11 +258,3 @@ Services exposed:
 | `GET` | `/api/analytics/network-health` | Aggregate SLA score, tower availability, MTTR |
 
 ---
-
-## 💼 Resume Bullet Points (Senior SDE Ready)
-
-- **Engineered an enterprise-grade Telecom Network Incident Monitoring Platform** using Java 21, Spring Boot 3, and PostgreSQL, capable of processing real-time cell tower telemetry, classifying network anomalies, and managing operational incident lifecycles.
-- **Architected a configurable Incident Detection Rule Engine** with multi-parameter composite scoring (latency, packet loss, throughput degradation, subscriber congestion) and implemented a temporal deduplication window that eliminated alert storms during fiber outages.
-- **Implemented an event-driven telemetry ingestion pipeline** using Apache Kafka and Spring Kafka consumer groups, decoupling high-throughput metric streams from operational relational queries.
-- **Developed a responsive Operations Command Center** using Node.js and Express (BFF pattern) providing interactive SLA monitoring, live telemetry tracking, and one-click chaos simulation.
-- **Automated CI/CD with GitHub Actions and Docker**, containerizing the multi-service ecosystem (PostgreSQL, Kafka, Redis, Spring Boot, Node.js) and enforcing test coverage with JUnit 5 and Mockito.
