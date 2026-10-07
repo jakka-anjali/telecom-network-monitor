@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: telecom-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: telecom_db
+      POSTGRES_USER: telecom_admin
+      POSTGRES_PASSWORD: telecom_pass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telecom_admin -d telecom_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Redis In-Memory Cache
+  redis:
+    image: redis:7-alpine
+    container_name: telecom-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # 3. Apache Kafka (KRaft mode - no Zookeeper required)
+  kafka:
+    image: bashj79/kafka-kraft:latest
+    container_name: telecom-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # 4. Spring Boot Backend Platform
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telecom-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: telecom_db
+      DB_USERNAME: telecom_admin
+      DB_PASSWORD: telecom_pass123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  # 5. Node.js Operations Dashboard & Gateway
+  frontend:
+    image: node:20-alpine
+    container_name: telecom-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm start"
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      BACKEND_URL: http://backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

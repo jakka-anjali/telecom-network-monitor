@@ -1,0 +1,24 @@
+{
+  "name": "telecom-operations-dashboard",
+  "version": "1.0.0",
+  "description": "Telecom Network Incident Monitoring Platform - Operations Command Center (Node.js BFF & Frontend)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "telecom",
+    "network-monitoring",
+    "incident-management",
+    "node",
+    "express",
+    "spring-boot"
+  ],
+  "author": "Telecom SDE Platform Team",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom NOC - Incident Monitoring & Infrastructure Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="navbar">
+        <div class="nav-brand">
+            <div class="logo-icon">📡</div>
+            <div>
+                <div class="brand-title">TELCO-NOC MONITOR</div>
+                <div class="brand-subtitle">Automated Incident Detection & Infrastructure Operations</div>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <div class="status-indicator">
+                <span class="pulse-dot green" id="backend-dot"></span>
+                <span id="backend-status-text">Backend Connected (Spring Boot :8080)</span>
+            </div>
+            <button class="btn btn-outline" id="refresh-all-btn">🔄 Refresh Data</button>
+            <div class="operator-profile">
+                <div class="avatar">NOC</div>
+                <div class="operator-details">
+                    <span class="operator-name">Shift Lead (On-Duty)</span>
+                    <span class="operator-role">L2/L3 Network Ops</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="dashboard-container">
+        <!-- KPI Metrics Grid -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">NETWORK HEALTH INDEX</div>
+                <div class="kpi-value-row">
+                    <div class="kpi-value" id="health-index-val">--%</div>
+                    <span class="badge badge-success" id="health-status-badge">OPTIMAL</span>
+                </div>
+                <div class="kpi-subtext">Composite SLA score based on active cell availability</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ACTIVE CELL TOWERS</div>
+                <div class="kpi-value-row">
+                    <div class="kpi-value" id="active-towers-val">-- / --</div>
+                    <span class="badge badge-info" id="towers-online-badge">ONLINE</span>
+                </div>
+                <div class="kpi-subtext" id="towers-breakdown-subtext">Degraded: 0 | Down: 0</div>
+            </div>
+
+            <div class="kpi-card alert-kpi">
+                <div class="kpi-label">ACTIVE INCIDENTS</div>
+                <div class="kpi-value-row">
+                    <div class="kpi-value text-warning" id="active-incidents-val">--</div>
+                    <div class="badge-stack">
+                        <span class="badge badge-danger" id="critical-incidents-val">0 CRITICAL</span>
+                        <span class="badge badge-warning" id="high-incidents-val">0 HIGH</span>
+                    </div>
+                </div>
+                <div class="kpi-subtext">Pending operator acknowledgement and resolution</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">MEAN TIME TO RESOLVE (MTTR)</div>
+                <div class="kpi-value-row">
+                    <div class="kpi-value" id="mttr-val">-- min</div>
+                    <span class="badge badge-primary">SLA TARGET &lt; 45m</span>
+                </div>
+                <div class="kpi-subtext">Calculated across resolved operational tickets</div>
+            </div>
+        </section>
+
+        <!-- Anomaly Simulator Bar -->
+        <section class="simulator-panel">
+            <div class="sim-header">
+                <div>
+                    <span class="sim-title">⚡ Interactive Telemetry & Chaos Simulator</span>
+                    <span class="sim-desc">Inject simulated real-time telemetry anomalies to test the Incident Detection Rule Engine</span>
+                </div>
+                <div class="auto-feed-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="auto-feed-checkbox">
+                        <span class="toggle-switch"></span>
+                        Auto-stream Telemetry (3s)
+                    </label>
+                </div>
+            </div>
+            <div class="sim-buttons">
+                <button class="btn btn-danger sim-btn" data-scenario="FIBER_CUT" data-tower="HYD-4521">
+                    💥 Fiber Cut (HYD-4521, 5G)
+                </button>
+                <button class="btn btn-warning sim-btn" data-scenario="CONGESTION" data-tower="BLR-1001">
+                    ⚠️ Cell Congestion (BLR-1001, 5G)
+                </button>
+                <button class="btn btn-critical sim-btn" data-scenario="OUTAGE" data-tower="MUM-3012">
+                    🛑 Complete Outage (MUM-3012, 5G)
+                </button>
+                <button class="btn btn-success sim-btn" data-scenario="NORMAL" data-tower="DEL-5001">
+                    ✅ Normal Telemetry (DEL-5001)
+                </button>
+            </div>
+            <div id="sim-feedback-message" class="sim-feedback"></div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-incidents">🚨 Incidents Command Center</button>
+            <button class="tab-btn" data-tab="tab-telemetry">📊 Live Telemetry Stream</button>
+            <button class="tab-btn" data-tab="tab-towers">🗼 Cell Towers Directory</button>
+            <button class="tab-btn" data-tab="tab-analytics">📈 Regional Analytics</button>
+        </div>
+
+        <!-- Tab 1: Incidents -->
+        <section id="tab-incidents" class="tab-content active">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Filter Severity:</label>
+                    <select id="filter-severity" class="form-select">
+                        <option value="">All Severities</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="LOW">LOW</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filter Status:</label>
+                    <select id="filter-status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="OPEN">OPEN</option>
+                        <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="RESOLVED">RESOLVED</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filter Region:</label>
+                    <select id="filter-region" class="form-select">
+                        <option value="">All Regions</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Bengaluru">Bengaluru</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi NCR">Delhi NCR</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Pune">Pune</option>
+                    </select>
+                </div>
+                <div class="filter-info">
+                    Showing <span id="incident-count-display">0</span> incidents
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Incident ID</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Tower & Region</th>
+                            <th>Detection Triggers / RCA</th>
+                            <th>Trigger Metrics</th>
+                            <th>Age</th>
+                            <th>Operator Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidents-table-body">
+                        <tr>
+                            <td colspan="8" class="text-center">Loading incidents from backend...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab 2: Live Telemetry Stream -->
+        <section id="tab-telemetry" class="tab-content">
+            <div class="stream-header-actions">
+                <span class="section-title">Latest Received Telemetry Packets</span>
+                <span class="badge badge-info">Latest 50 Telemetry Ingestions</span>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Packet ID</th>
+                            <th>Timestamp</th>
+                            <th>Tower ID</th>
+                            <th>Latency (ms)</th>
+                            <th>Packet Loss (%)</th>
+                            <th>Throughput (Mbps)</th>
+                            <th>Active Users</th>
+                            <th>Signal (dBm)</th>
+                            <th>Tower Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="telemetry-table-body">
+                        <tr>
+                            <td colspan="9" class="text-center">No telemetry packets recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab 3: Cell Towers Directory -->
+        <section id="tab-towers" class="tab-content">
+            <div class="section-title">Monitored Infrastructure Nodes</div>
+            <div class="towers-grid" id="towers-grid-container">
+                <!-- Loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Tab 4: Regional Analytics -->
+        <section id="tab-analytics" class="tab-content">
+            <div class="analytics-layout">
+                <div class="analytics-card">
+                    <div class="card-title">Regional Outage Distribution</div>
+                    <div id="regional-distribution-list" class="regional-list">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="card-title">Detection Rule Engine Specifications</div>
+                    <div class="rule-spec-box">
+                        <div class="rule-item">
+                            <span class="rule-badge critical">CRITICAL</span>
+                            <div>
+                                <strong>Complete Outage or Severe Latency + Loss</strong>
+                                <p>Tower Status = DOWN <i>OR</i> Latency &ge; 300ms <i>OR</i> Packet Loss &ge; 25% | Dispatches PagerDuty Alert</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-badge high">HIGH</span>
+                            <div>
+                                <strong>Service Degradation</strong>
+                                <p>Latency &ge; 200ms <i>OR</i> Packet Loss &ge; 12% | Dispatches Slack #telco-network-alerts</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-badge medium">MEDIUM</span>
+                            <div>
+                                <strong>Moderate Cell Jitter & Congestion</strong>
+                                <p>Latency &ge; 120ms <i>OR</i> Packet Loss &ge; 5% <i>OR</i> Throughput &lt; 15Mbps with &gt; 2,000 active users</p>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-badge dedupe">DEDUPLICATION</span>
+                            <div>
+                                <strong>Active Incident Correlation Window</strong>
+                                <p>Subsequent telemetry for the same tower updates the active ticket and escalates severity instead of creating duplicate tickets.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Status Update / Resolution -->
+    <div class="modal-backdrop" id="status-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Update Incident Status</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Incident ID:</label>
+                    <input type="text" id="modal-incident-id" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Target Status:</label>
+                    <select id="modal-target-status" class="form-control">
+                        <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="RESOLVED">RESOLVED</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Operator Identifier:</label>
+                    <input type="text" id="modal-operator" class="form-control" placeholder="e.g. Operator-Ravi / Lead-Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Investigation / Resolution Notes:</label>
+                    <textarea id="modal-notes" class="form-control" rows="3" placeholder="Describe diagnosis, hardware replacements, fiber repairs or link resets..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modal-cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="modal-submit-btn">Apply Status Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Alerts Audit -->
+    <div class="modal-backdrop" id="alerts-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Incident Alerts Audit Trail</h3>
+                <button class="modal-close" id="alerts-modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="alerts-list-container">Loading alert audit history...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="alerts-modal-ok-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

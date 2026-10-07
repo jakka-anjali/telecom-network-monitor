@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: telecom-network-monitor
+  profiles:
+    active: local
+
+  # Default Local Profile uses In-Memory DB with PostgreSQL compatibility
+  datasource:
+    url: jdbc:h2:mem:telecom_db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Telecom Domain Configuration
+telecom:
+  kafka:
+    enabled: false # Set to true when running alongside Kafka container or Docker Compose
+  thresholds:
+    latency-critical-ms: 300.0
+    latency-high-ms: 200.0
+    packet-loss-critical-pct: 25.0
+    packet-loss-high-pct: 12.0
+    throughput-min-mbps: 15.0
+
+# OpenAPI Swagger Documentation
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

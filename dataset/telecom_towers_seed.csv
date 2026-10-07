@@ -1,0 +1,11 @@
+tower_id,name,region,technology,status,latitude,longitude,capacity_bandwidth_mbps,active_users_baseline
+HYD-4521,Hitec City 5G Alpha,Hyderabad,5G,ACTIVE,17.4435,78.3772,1000,12000
+HYD-1092,Gachibowli Financial District,Hyderabad,5G,ACTIVE,17.4399,78.3489,1000,9500
+BLR-1001,Electronic City Phase 1,Bengaluru,5G,ACTIVE,12.8399,77.6770,1200,14000
+BLR-2045,Koramangala 80ft Hub,Bengaluru,4G,ACTIVE,12.9352,77.6245,500,8500
+MUM-3012,Bandra Kurla Complex (BKC),Mumbai,5G,ACTIVE,19.0657,72.8687,1500,18000
+MUM-4109,Andheri Metro West,Mumbai,4G,ACTIVE,19.1197,72.8464,600,11000
+DEL-5001,Connaught Place Inner Circle,Delhi NCR,5G,ACTIVE,28.6315,77.2167,1200,16000
+DEL-5088,Cyber City DLF Phase 2,Delhi NCR,5G,ACTIVE,28.4906,77.0898,1200,15000
+CHN-6020,OMR IT Express Corridor,Chennai,5G,ACTIVE,12.9249,80.2299,800,9000
+PUN-7014,Hinjawadi Tech Park Phase 1,Pune,4G,ACTIVE,18.5913,73.7389,500,7500

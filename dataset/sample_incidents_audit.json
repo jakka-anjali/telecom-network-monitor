@@ -1,0 +1,49 @@
+[
+  {
+    "id": "INC-1001",
+    "towerId": "HYD-4521",
+    "region": "Hyderabad",
+    "severity": "HIGH",
+    "status": "OPEN",
+    "title": "HIGH Network Degradation on Tower HYD-4521",
+    "description": "High Latency detected (245.0 ms > 200 ms) | Severe Packet Loss (18.2% > 12%) | High subscriber volume congestion (12450 active users)",
+    "rootCauseAnalysis": "Optical fiber feeder link attenuation suspected near Hitec City interchange.",
+    "triggerLatencyMs": 245.0,
+    "triggerPacketLossPct": 18.2,
+    "createdAt": "2026-10-07T10:04:00Z",
+    "updatedAt": "2026-10-07T10:06:00Z",
+    "alerts": [
+      {
+        "channel": "PAGERDUTY",
+        "recipient": "noc-oncall-leads@telecom.net",
+        "message": "[HIGH ALERT] Incident INC-1001 on Tower HYD-4521 (Hyderabad, 5G)"
+      },
+      {
+        "channel": "SLACK",
+        "recipient": "#telco-network-alerts",
+        "message": "[HIGH ALERT] Incident INC-1001 on Tower HYD-4521 automated notification dispatched"
+      }
+    ]
+  },
+  {
+    "id": "INC-1002",
+    "towerId": "MUM-3012",
+    "region": "Mumbai",
+    "severity": "CRITICAL",
+    "status": "ACKNOWLEDGED",
+    "title": "Total Outage on Tower MUM-3012",
+    "description": "Cell Tower reports complete DOWN outage | 0 throughput across 18000 subscribers",
+    "rootCauseAnalysis": "Primary grid transformer trip at Bandra Kurla Complex site.",
+    "triggerLatencyMs": 999.0,
+    "triggerPacketLossPct": 100.0,
+    "createdAt": "2026-10-07T10:02:00Z",
+    "updatedAt": "2026-10-07T10:05:00Z",
+    "alerts": [
+      {
+        "channel": "PAGERDUTY",
+        "recipient": "noc-critical-leads@telecom.net",
+        "message": "[CRITICAL ALERT] Tower MUM-3012 reported DOWN status"
+      }
+    ]
+  }
+]
