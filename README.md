@@ -138,7 +138,6 @@ telecom-network-monitor/
 ├── Dockerfile                    # Multi-stage container build (Eclipse Temurin JRE)
 ├── docker-compose.yml            # Multi-container orchestration (App, DB, Kafka, Redis, UI)
 ├── ARCHITECTURE.md               # Deep-dive system design & interview trade-offs
-├── GIT_DEPLOYMENT_GUIDE.md       # Step-by-step Git Bash commands for GitHub
 └── README.md                     # Project documentation
 ```
 
